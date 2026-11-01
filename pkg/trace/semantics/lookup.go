@@ -139,38 +139,42 @@ func conditionsMatch[A Accessor](accessor A, conditions []Condition) bool {
 // the underlying pdata storage type.
 func Lookup[A Accessor](r Registry, accessor A, concept Concept) (LookupResult, bool) {
 	tags := r.GetAttributePrecedence(concept)
-	if tags == nil {
+	index, value := lookupValue(tags, accessor)
+	if index < 0 {
 		return LookupResult{}, false
 	}
-	for _, tag := range tags {
+	return LookupResult{TagInfo: tags[index], StringValue: value}, true
+}
+
+// Keep metadata out of the result shared with string-only callers.
+func lookupValue[A Accessor](tags []TagInfo, accessor A) (int, string) {
+	for i := range tags {
+		tag := &tags[i]
 		if len(tag.When) > 0 && !conditionsMatch(accessor, tag.When) {
 			continue
 		}
 		switch tag.Type {
 		case ValueTypeInt64:
 			if v, ok := accessor.GetInt64(tag.Name); ok {
-				return LookupResult{TagInfo: tag, StringValue: strconv.FormatInt(v, 10)}, true
+				return i, strconv.FormatInt(v, 10)
 			}
 		case ValueTypeFloat64:
 			if v, ok := accessor.GetFloat64(tag.Name); ok {
-				return LookupResult{TagInfo: tag, StringValue: fmt.Sprintf("%g", v)}, true
+				return i, fmt.Sprintf("%g", v)
 			}
 		default:
 			if v := accessor.GetString(tag.Name); v != "" {
-				return LookupResult{TagInfo: tag, StringValue: v}, true
+				return i, v
 			}
 		}
 	}
-	return LookupResult{}, false
+	return -1, ""
 }
 
 // LookupString returns the first matching string value for the concept, or "" if not found.
 func LookupString[A Accessor](r Registry, accessor A, concept Concept) string {
-	result, ok := Lookup(r, accessor, concept)
-	if !ok {
-		return ""
-	}
-	return result.StringValue
+	_, value := lookupValue(r.GetAttributePrecedence(concept), accessor)
+	return value
 }
 
 // LookupFloat64 returns the first matching value as float64, or (0, false) if not found or unparseable.

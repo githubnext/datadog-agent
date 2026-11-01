@@ -34,6 +34,52 @@ func TestLookupString(t *testing.T) {
 	})
 }
 
+func TestLookupValueMetadata(t *testing.T) {
+	present := true
+	equal := "grpc"
+	concept := Concept("test.lookup")
+	first := TagInfo{
+		Name: "first", Provider: Provider("test"), Version: "1", Type: ValueTypeString,
+		When: []Condition{{Attribute: "system", Present: &present, Eq: &equal}},
+	}
+	fallback := TagInfo{Name: "fallback", Provider: Provider("test"), Version: "2", Type: ValueTypeString}
+	for _, tt := range []struct {
+		name  string
+		tags  []TagInfo
+		attrs map[string]any
+		index int
+		value string
+	}{
+		{"nil", nil, nil, -1, ""},
+		{"empty", []TagInfo{}, nil, -1, ""},
+		{"missing", []TagInfo{first, fallback}, nil, -1, ""},
+		{"first", []TagInfo{first, fallback}, map[string]any{"system": "grpc", "first": "one", "fallback": "two"}, 0, "one"},
+		{"failed-condition", []TagInfo{first, fallback}, map[string]any{"system": "http", "first": "one", "fallback": "two"}, 1, "two"},
+		{"empty-first", []TagInfo{first, fallback}, map[string]any{"system": "grpc", "first": "", "fallback": "two"}, 1, "two"},
+		{"int-zero", []TagInfo{{Name: "number", Type: ValueTypeInt64}}, map[string]any{"number": int64(0)}, 0, "0"},
+		{"int-negative", []TagInfo{{Name: "number", Type: ValueTypeInt64}}, map[string]any{"number": int64(-123)}, 0, "-123"},
+		{"float", []TagInfo{{Name: "number", Type: ValueTypeFloat64}}, map[string]any{"number": 1.25}, 0, "1.25"},
+		{"float-nan", []TagInfo{{Name: "number", Type: ValueTypeFloat64}}, map[string]any{"number": math.NaN()}, 0, "NaN"},
+		{"wrong-type", []TagInfo{{Name: "number", Type: ValueTypeInt64}}, map[string]any{"number": "0"}, -1, ""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &EmbeddedRegistry{mappings: map[Concept][]TagInfo{concept: tt.tags}}
+			accessor := newTestAccessor(tt.attrs)
+			index, value := lookupValue(tt.tags, accessor)
+			assert.Equal(t, tt.index, index)
+			assert.Equal(t, tt.value, value)
+			assert.Equal(t, tt.value, LookupString(r, accessor, concept))
+			result, ok := Lookup(r, accessor, concept)
+			assert.Equal(t, tt.index >= 0, ok)
+			if tt.index >= 0 {
+				assert.Equal(t, LookupResult{TagInfo: tt.tags[tt.index], StringValue: tt.value}, result)
+			} else {
+				assert.Equal(t, LookupResult{}, result)
+			}
+		})
+	}
+}
+
 func TestLookupInt64(t *testing.T) {
 	r := testRegistry
 
