@@ -94,10 +94,12 @@ func OTLPTracesToConcentratorInputsWithObfuscationAndFilter(
 			continue
 		}
 		var resourceName string
-		if transform.OperationAndResourceNameV2Enabled(conf) {
-			resourceName = transform.GetOTelResourceV2(otelspan, otelres)
-		} else {
-			resourceName = transform.GetOTelResourceV1(otelspan, otelres)
+		if len(conf.Ignore["resource"]) > 0 {
+			if transform.OperationAndResourceNameV2Enabled(conf) {
+				resourceName = transform.GetOTelResourceV2(otelspan, otelres)
+			} else {
+				resourceName = transform.GetOTelResourceV1(otelspan, otelres)
+			}
 		}
 		if allowed, _ := ignoreResources.AllowsString(resourceName); !allowed {
 			continue
