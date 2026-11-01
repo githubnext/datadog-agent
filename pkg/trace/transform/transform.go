@@ -47,6 +47,7 @@ func otelSpanToDDSpanMinimal(
 	peerTagKeys []string,
 	primaryTagKeys []string,
 	spanAccessor semantics.Accessor,
+	metaCapacity int,
 ) *pb.Span {
 	spanKind := otelspan.Kind()
 
@@ -60,7 +61,7 @@ func otelSpanToDDSpanMinimal(
 		ParentID: OTelSpanIDToUint64(otelspan.ParentSpanID()),
 		Start:    int64(otelspan.StartTimestamp()),
 		Duration: int64(otelspan.EndTimestamp()) - int64(otelspan.StartTimestamp()),
-		Meta:     make(map[string]string, sattr.Len()+rattr.Len()),
+		Meta:     make(map[string]string, metaCapacity),
 		Metrics:  make(map[string]float64),
 	}
 
@@ -162,7 +163,9 @@ func OtelSpanToDDSpanMinimal(
 	primaryTagKeys []string,
 ) *pb.Span {
 	spanAccessor := semantics.NewOTelSpanAccessor(otelspan.Attributes(), otelres.Attributes())
-	return otelSpanToDDSpanMinimal(otelspan, otelres, lib, isTopLevel, topLevelByKind, conf, peerTagKeys, primaryTagKeys, spanAccessor)
+	// Minimal conversion emits only selected tags plus span.kind, gRPC status and tracestate.
+	metaCapacity := 3 + len(peerTagKeys) + len(primaryTagKeys)
+	return otelSpanToDDSpanMinimal(otelspan, otelres, lib, isTopLevel, topLevelByKind, conf, peerTagKeys, primaryTagKeys, spanAccessor, metaCapacity)
 }
 
 func isDatadogAPMConventionKey(k string) bool {
@@ -317,7 +320,7 @@ func OtelSpanToDDSpan(
 	spanAccessor := semantics.NewOTelSpanAccessor(otelspan.Attributes(), otelres.Attributes())
 	// primaryTagKeys is nil here: the full conversion below copies all span and
 	// resource attributes into Meta, so span-derived primary tags are already present.
-	ddspan := otelSpanToDDSpanMinimal(otelspan, otelres, lib, isTopLevel, topLevelByKind, conf, nil, nil, spanAccessor)
+	ddspan := otelSpanToDDSpanMinimal(otelspan, otelres, lib, isTopLevel, topLevelByKind, conf, nil, nil, spanAccessor, otelspan.Attributes().Len()+otelres.Attributes().Len())
 
 	// Span attributes take precedence over resource attributes in the event of key collisions; so, use span attributes first
 	otelspan.Attributes().Range(func(k string, v pcommon.Value) bool {

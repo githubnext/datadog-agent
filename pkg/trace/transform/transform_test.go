@@ -6,6 +6,7 @@
 package transform
 
 import (
+	"fmt"
 	"math"
 	"strings"
 	"testing"
@@ -24,8 +25,66 @@ import (
 	"github.com/DataDog/datadog-agent/pkg/opentelemetry-mapping-go/otlp/attributes"
 
 	"github.com/DataDog/datadog-agent/pkg/trace/config"
+	"github.com/DataDog/datadog-agent/pkg/trace/semantics"
 	normalizeutil "github.com/DataDog/datadog-agent/pkg/trace/traceutil/normalize"
 )
+
+func TestMinimalSpanMetadataSizing(t *testing.T) {
+	for _, count := range []int{0, 8, 128} {
+		t.Run(fmt.Sprintf("attributes-%d", count), func(t *testing.T) {
+			span := ptrace.NewSpan()
+			span.SetName("test-span")
+			res := pcommon.NewResource()
+			for i := 0; i < count; i++ {
+				key := fmt.Sprintf("extra.%d", i)
+				span.Attributes().PutStr(key, "span-value")
+				res.Attributes().PutStr(key, "resource-value")
+			}
+			span.Attributes().PutStr("peer.service", "database")
+			span.Attributes().PutStr("team", "span-team")
+			res.Attributes().PutStr("team", "resource-team")
+			span.Attributes().PutInt("rpc.grpc.status_code", 0)
+			span.TraceState().FromRaw("ot=th:8")
+			peerKeys := []string{"peer.service", "team", "absent"}
+			primaryKeys := []string{"team", "absent"}
+			cfg := &config.AgentConfig{OTLPReceiver: &config.OTLP{}}
+			translator, err := attributes.NewTranslator(componenttest.NewNopTelemetrySettings())
+			require.NoError(t, err)
+			cfg.OTLPReceiver.AttributesTranslator = translator
+			lib := pcommon.NewInstrumentationScope()
+			accessor := semantics.NewOTelSpanAccessor(span.Attributes(), res.Attributes())
+			want := otelSpanToDDSpanMinimal(span, res, lib, false, false, cfg, peerKeys, primaryKeys, accessor, span.Attributes().Len()+res.Attributes().Len())
+			got := OtelSpanToDDSpanMinimal(span, res, lib, false, false, cfg, peerKeys, primaryKeys)
+			require.Equal(t, want, got)
+			require.Equal(t, "span-team", got.Meta["team"])
+			require.Equal(t, "database", got.Meta["peer.service"])
+			require.Equal(t, "0", got.Meta["rpc.grpc.status_code"])
+			require.Equal(t, "ot=th:8", got.Meta["w3c.tracestate"])
+			require.NotContains(t, got.Meta, "absent")
+			full := OtelSpanToDDSpan(span, res, lib, cfg)
+			for i := 0; i < count; i++ {
+				key := fmt.Sprintf("extra.%d", i)
+				require.NotContains(t, got.Meta, key)
+				require.Equal(t, "span-value", full.Meta[key])
+			}
+		})
+	}
+}
+
+func BenchmarkMinimalSpanMetadataSizing(b *testing.B) {
+	span := ptrace.NewSpan()
+	span.SetName("test-span")
+	res := pcommon.NewResource()
+	for i := 0; i < 128; i++ {
+		span.Attributes().PutStr(fmt.Sprintf("extra.%d", i), "value")
+	}
+	cfg := &config.AgentConfig{OTLPReceiver: &config.OTLP{}}
+	lib := pcommon.NewInstrumentationScope()
+	b.ReportAllocs()
+	for b.Loop() {
+		_ = OtelSpanToDDSpanMinimal(span, res, lib, false, false, cfg, nil, nil)
+	}
+}
 
 func TestGetOTelEnv(t *testing.T) {
 	tests := []struct {
