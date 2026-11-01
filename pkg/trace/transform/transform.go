@@ -277,12 +277,15 @@ func GetOTelStatusCode(span ptrace.Span, res pcommon.Resource) uint32 {
 }
 
 // GetOTelContainerTags returns a list of DD container tags in the OTel resource attributes.
-// Tags are always normalized.
+// Tags are always normalized. Mapped resource tags are extracted only when requested.
 func GetOTelContainerTags(rattrs pcommon.Map, tagKeys []string) []string {
 	var containerTags []string
-	containerTagsMap := attributes.ContainerTagsFromResourceAttributes(rattrs)
+	var containerTagsMap map[string]string
 	for _, key := range tagKeys {
 		if mappedKey, ok := attributes.ContainerMappings[key]; ok {
+			if containerTagsMap == nil {
+				containerTagsMap = attributes.ContainerTagsFromResourceAttributes(rattrs)
+			}
 			// If the key has a mapping in ContainerMappings, use the mapped key
 			if val, ok := containerTagsMap[mappedKey]; ok {
 				t := normalizeutil.NormalizeTag(mappedKey + ":" + val)
