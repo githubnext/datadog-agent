@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/config/setup/constants
 
-go 1.26.0
+go 1.26.8
 
 // This section was automatically added by 'dda inv modules.add-all-replace' command, do not edit manually
 

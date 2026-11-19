@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/util/jsonquery
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/pkg/util/cache v0.69.4

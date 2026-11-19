@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/tagger/types
 
-go 1.26.0
+go 1.26.8
 
 require github.com/DataDog/datadog-agent/comp/core/tagger/origindetection v0.62.0-rc.7
 

@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/trace/stats
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/pkg/obfuscate v0.71.0

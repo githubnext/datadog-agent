@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/comp/core/secrets/mock
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/comp/core/secrets/def v0.84.0-devel.0.20261028224924-1c255663adbd
