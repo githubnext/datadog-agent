@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/opentelemetry-mapping-go/otlp/logs
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/agent-payload/v5 v5.0.215

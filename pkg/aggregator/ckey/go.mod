@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/aggregator/ckey
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/pkg/tagset v0.60.0

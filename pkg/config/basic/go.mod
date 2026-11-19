@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/config/basic
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/spf13/cast v1.10.0

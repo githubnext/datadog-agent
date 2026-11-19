@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/pkg/util/utilizationtracker
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/benbjohnson/clock v1.3.5

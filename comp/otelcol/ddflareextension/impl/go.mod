@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/comp/otelcol/ddflareextension/impl
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/comp/core/ipc/def v0.70.0

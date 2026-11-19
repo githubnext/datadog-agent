@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent
 
-go 1.26.5
+go 1.26.8
 
 // v0.8.0 was tagged long ago, and appared on pkg.go.dev.  We do not want any tagged version
 // to appear there.  The trick to accomplish this is to make a new version (in this case v0.9.0)
@@ -257,7 +257,7 @@ require (
 	github.com/cloudfoundry/go-cfclient/v3 v3.0.0-beta.1
 	github.com/containerd/cgroups/v3 v3.1.3
 	github.com/containerd/containerd/api v1.11.1
-	github.com/containerd/containerd/v2 v2.3.5
+	github.com/containerd/containerd/v2 v2.3.7
 	github.com/containerd/errdefs v1.0.0
 	github.com/containerd/typeurl/v2 v2.3.0
 	github.com/containernetworking/cni v1.3.1
@@ -585,9 +585,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.7 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ecr v1.66.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.66.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.102.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/eks v1.104.2 // indirect
+	github.com/aws/aws-sdk-go-v2/service/eks v1.104.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/elasticache v1.60.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.22 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.7 // indirect
@@ -699,6 +699,7 @@ require (
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
+	github.com/google/go-tpm-tools v0.4.9 // indirect
 	github.com/google/pprof v0.0.0-20261016150608-1facf8f91b50 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/wire v0.6.0 // indirect
@@ -1065,6 +1066,7 @@ require (
 	k8s.io/streaming v0.37.1 // indirect
 	kernel.org/pub/linux/libs/security/libcap/psx v1.2.77 // indirect
 	mellium.im/sasl v0.3.2 // indirect
+	modernc.org/sqlite v1.58.0 // indirect
 	mvdan.cc/sh/v3 v3.14.1 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.36.0 // indirect
 	sigs.k8s.io/controller-runtime v0.25.2 // indirect

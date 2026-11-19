@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/test/e2e-framework
 
-go 1.26.6
+go 1.26.8
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.1

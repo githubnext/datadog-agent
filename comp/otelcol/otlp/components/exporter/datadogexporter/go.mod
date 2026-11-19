@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/comp/otelcol/otlp/components/exporter/datadogexporter
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/comp/core/config v0.83.0

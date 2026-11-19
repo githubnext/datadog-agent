@@ -1,6 +1,6 @@
 module github.com/DataDog/datadog-agent/comp/core/hostname/hostnameinterface/mock
 
-go 1.26.0
+go 1.26.8
 
 require (
 	github.com/DataDog/datadog-agent/comp/core/hostname/hostnameinterface/def v0.61.0
